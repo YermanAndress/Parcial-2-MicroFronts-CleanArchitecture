@@ -1,10 +1,35 @@
 import { Router } from "express";
+import { MoviesRoutes } from "./movies.routes";
 
-// TODO: crear <entidad>.routes.ts en esta carpeta y registrarlo aquí.
-// Ejemplo: router.use("/api/authors", AuthorsRoutes.routes);
+/**
+ * Clase encargada de centralizar todas las rutas de la aplicación.
+ *
+ * @remarks
+ * Proporciona un único punto de acceso a los endpoints
+ * del backend, agrupando los módulos expuestos.
+ *
+ * @example
+ * ```ts
+ * import express from 'express';
+ * import { AppRoutes } from './routes';
+ *
+ * const app = express();
+ * app.use(AppRoutes.routes);
+ * ```
+ */
 export class AppRoutes {
+
+  /**
+   * Devuelve el router principal de la aplicación.
+   *
+   * @returns Router de Express con todas las rutas registradas
+   */
   static get routes(): Router {
     const router = Router();
+
+    // Definir rutas
+    router.use("/api/movies", MoviesRoutes.routes);
+
     return router;
   }
 }

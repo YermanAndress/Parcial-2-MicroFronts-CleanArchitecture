@@ -22,13 +22,13 @@ export const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'API Client Server NodeJS',
+      title: 'API Movies - ms-movies-nodejs',
       version: '1.0.0',
-      description: 'Documentación de la API con Swagger',
+      description: 'Documentación de la API de películas con Swagger',
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost:3003',
       },
     ],
   },

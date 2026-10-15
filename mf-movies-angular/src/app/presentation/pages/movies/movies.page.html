@@ -1,0 +1,130 @@
+<div class="container py-4">
+  <h1 class="h3 mb-4">Películas</h1>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Registrar película</h2>
+      <form class="row g-3" (ngSubmit)="createMovie()">
+        <div class="col-md-4">
+          <label class="form-label" for="movie-title">Título</label>
+          <input
+            id="movie-title"
+            class="form-control"
+            name="title"
+            [(ngModel)]="form.title"
+            required
+          />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="movie-director">Director</label>
+          <input
+            id="movie-director"
+            class="form-control"
+            name="director"
+            [(ngModel)]="form.director"
+            required
+          />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label" for="movie-year">Año</label>
+          <input
+            id="movie-year"
+            class="form-control"
+            type="number"
+            name="year"
+            [(ngModel)]="form.year"
+            required
+          />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label" for="movie-genre">Género</label>
+          <select
+            id="movie-genre"
+            class="form-select"
+            name="genre"
+            [(ngModel)]="form.genre"
+            required
+          >
+            @for (genre of genres; track genre) {
+              <option [ngValue]="genre">{{ genre }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-12 d-flex align-items-center gap-3">
+          <button class="btn btn-primary" type="submit">Guardar</button>
+          @if (createState === 'loading') {
+            <span class="text-secondary">Guardando...</span>
+          }
+          @if (createState === 'success') {
+            <span class="text-success">Película creada correctamente</span>
+          }
+          @if (createState === 'error') {
+            <span class="text-danger">Error al crear la película</span>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h2 class="h5 mb-3">Buscar por id</h2>
+    <div class="input-group" style="max-width: 24rem">
+      <input
+        class="form-control"
+        type="number"
+        name="searchId"
+        placeholder="Identificador"
+        [(ngModel)]="searchId"
+      />
+      <button class="btn btn-outline-secondary" type="button" (click)="searchById()">
+        Buscar
+      </button>
+    </div>
+    @if (searchError) {
+      <div class="text-danger mt-2">{{ searchError }}</div>
+    }
+    @if (searchedMovie) {
+      <div class="alert alert-info mt-2">
+        <strong>{{ searchedMovie.title }}</strong> — {{ searchedMovie.director }}
+        ({{ searchedMovie.year }}) · {{ searchedMovie.genre }}
+      </div>
+    }
+  </div>
+
+  @switch (state) {
+    @case ('loading') {
+      <div class="alert alert-secondary">Cargando películas...</div>
+    }
+    @case ('error') {
+      <div class="alert alert-danger">Error al cargar las películas</div>
+    }
+    @case ('success') {
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Título</th>
+            <th scope="col">Director</th>
+            <th scope="col">Año</th>
+            <th scope="col">Género</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (movie of movies; track movie.id) {
+            <tr>
+              <td>{{ movie.id }}</td>
+              <td>{{ movie.title }}</td>
+              <td>{{ movie.director }}</td>
+              <td>{{ movie.year }}</td>
+              <td>{{ movie.genre }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5">Sin películas registradas</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</div>
