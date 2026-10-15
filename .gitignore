@@ -1,0 +1,11 @@
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log
+node_modules/
+dist/
+coverage/
+.angular/cache/
+build/
+.gradle/
