@@ -3,7 +3,7 @@ import { IconAtom } from '@brejcha13320/design-system-bootstrap';
 import { AlertState } from '../../interfaces/state.interface';
 
 @Component({
-  selector: 'app-alert',
+  selector: 'app-reviews-alert',
   templateUrl: './alert.component.html',
   imports: [IconAtom],
 })
