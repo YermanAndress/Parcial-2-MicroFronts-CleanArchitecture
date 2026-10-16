@@ -1,24 +1,33 @@
 /**
- * Configuración de variables de entorno de la aplicación.
+ * Configuración de variables de entorno para el microfrontend de películas.
  *
  * @remarks
- * Este archivo contiene las constantes de entorno utilizadas
- * en la aplicación Angular.
- *
- * @example
- * ```ts
- * import { environment } from '../../environments/environment';
- *
- * this.http.get(`${environment.baseUrl}/api/movies`);
- * ```
+ * Contiene los endpoints y URLs base de los servicios backend
+ * requeridos por la arquitectura para la conmutación de repositorios.
  */
 export const environment = {
   /**
-   * URL base del microservicio de películas (ms-movies-nodejs).
-   *
-   * @remarks
-   * Se utiliza como punto de partida para construir
-   * las peticiones HTTP hacia la API.
+   * Indica si la aplicación está en modo producción.
    */
-  baseUrl: 'http://localhost:3003',
+  production: false,
+
+  /**
+   * URL de la API del microservicio backend Node.js en el puerto 3003.
+   */
+  apiUrlNode: 'http://localhost:3003/api',
+
+  /**
+   * URL de la API del microservicio backend Spring Boot en el puerto 8082.
+   */
+  apiUrlSpringBoot: 'http://localhost:8082/api',
+
+  /**
+   * URL base del backend Node.js.
+   */
+  baseUrlNode: 'http://localhost:3003',
+
+  /**
+   * URL base del backend Spring Boot.
+   */
+  baseUrlSpringBoot: 'http://localhost:8082',
 };

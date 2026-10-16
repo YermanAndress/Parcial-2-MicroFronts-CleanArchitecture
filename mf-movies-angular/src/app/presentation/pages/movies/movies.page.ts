@@ -1,161 +1,140 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CreateMovieUseCase } from '../../../core/application/use-cases/create-movie.usecase';
-import { GetAllMoviesUseCase } from '../../../core/application/use-cases/get-all-movies.usecase';
-import { GetMovieByIdUseCase } from '../../../core/application/use-cases/get-movie-by-id.usecase';
-import {
-  CreateMovieDto,
-  Movie,
-  MovieGenre,
-} from '../../../core/domain/models/movie.model';
-import { MovieRepository } from '../../../core/domain/repositories/movie.repository';
-import { MovieRepositoryImpl } from '../../../core/infrastructure/repositories/movie.repository.impl';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit } from '@angular/core';
+import { GetAllMoviesUseCase } from '../../../core/application/usecases/get-all-movies.usecase';
+import { GetClassicMoviesUseCase } from '../../../core/application/usecases/get-classic-movies.usecase';
+import { GetRecentMoviesUseCase } from '../../../core/application/usecases/get-recent-movies.usecase';
+import { MovieModel } from '../../../core/domain/models/movie.model';
+import { MoviesTableComponent } from '../../components/movies-table/movies-table.component';
 import { State } from '../../interfaces/state.interface';
 
 /**
- * Página de películas.
+ * Página principal (Smart Component) del microfrontend de películas.
  *
  * @remarks
- * Componente contenedor que orquesta los tres casos de uso del
- * microfrontend: listar, buscar por id y crear películas.
+ * Esta página pertenece a la capa de Presentación de Clean Architecture.
+ * Cumple estrictamente con la regla de dependencia: **SOLO inyecta los 3 Casos de Uso**
+ * ({@link GetAllMoviesUseCase}, {@link GetRecentMoviesUseCase}, {@link GetClassicMoviesUseCase})
+ * y nunca inyecta directamente `HttpClient`, `DataService` ni implementaciones concretas
+ * de repositorios.
  *
- * Forma parte de la **capa de presentación** y consume los casos de uso
- * de la capa de aplicación (Clean Architecture).
- *
- * @remarks
- * El contrato `MovieRepository` se registra a nivel de componente para
- * que el microfrontend sea autocontenido: al ser cargado por el host vía
- * Module Federation, el `app.config.ts` del remoto no se ejecuta y sus
- * *providers* no estarían disponibles. Registrarlo aquí garantiza que
- * funcione tanto de forma individual como integrado en el host.
+ * Administra el ciclo de vida, los estados de carga (`State`) y coordina las
+ * acciones de filtrado de películas.
  */
 @Component({
   selector: 'app-movies',
   templateUrl: './movies.page.html',
   styleUrl: './movies.page.scss',
-  imports: [FormsModule],
+  standalone: true,
+  imports: [CommonModule, MoviesTableComponent],
   providers: [
     GetAllMoviesUseCase,
-    GetMovieByIdUseCase,
-    CreateMovieUseCase,
-    { provide: MovieRepository, useClass: MovieRepositoryImpl },
+    GetRecentMoviesUseCase,
+    GetClassicMoviesUseCase,
   ],
 })
-export class MoviesPage {
-  /** Listado de películas obtenidas desde el caso de uso. */
-  movies: Movie[] = [];
-
-  /** Estado de la carga del listado. */
-  state: State = 'init';
-
-  /** Estado del formulario de creación. */
-  createState: State = 'init';
-
-  /** Identificador ingresado para la búsqueda. */
-  searchId: number | null = null;
-
-  /** Película encontrada en la búsqueda por id. */
-  searchedMovie: Movie | null = null;
-
-  /** Mensaje de error de la búsqueda. */
-  searchError = '';
-
-  /** Géneros disponibles para el formulario. */
-  genres: MovieGenre[] = [
-    'Action',
-    'Comedy',
-    'Drama',
-    'Sci-Fi',
-    'Animation',
-    'Thriller',
-    'Horror',
-  ];
-
-  /** Modelo del formulario de creación. */
-  form: CreateMovieDto = this.createEmptyForm();
-
-  private getAllMoviesUseCase = inject(GetAllMoviesUseCase);
-  private getMovieByIdUseCase = inject(GetMovieByIdUseCase);
-  private createMovieUseCase = inject(CreateMovieUseCase);
+export class MoviesPage implements OnInit {
+  /**
+   * Caso de uso inyectado para obtener todas las películas del catálogo.
+   */
+  private readonly getAllMoviesUseCase: GetAllMoviesUseCase = inject(GetAllMoviesUseCase);
 
   /**
-   * Inicializa el componente cargando el listado de películas.
+   * Caso de uso inyectado para obtener las películas de estreno reciente (año >= 2020).
+   */
+  private readonly getRecentMoviesUseCase: GetRecentMoviesUseCase = inject(GetRecentMoviesUseCase);
+
+  /**
+   * Caso de uso inyectado para obtener las películas clásicas (año < 2000).
+   */
+  private readonly getClassicMoviesUseCase: GetClassicMoviesUseCase = inject(GetClassicMoviesUseCase);
+
+  /**
+   * Arreglo con la lista de películas actualmente cargadas en pantalla.
+   */
+  movies: MovieModel[] = [];
+
+  /**
+   * Estado asíncrono actual del componente ('init', 'loading', 'success', 'error').
+   */
+  state: State = 'init';
+
+  /**
+   * Mensaje descriptivo de error en caso de fallo en la petición.
+   */
+  errorMessage: string = '';
+
+  /**
+   * Título descriptivo de la vista según el filtro activo.
+   */
+  activeFilterTitle: string = 'Catálogo Completo';
+
+  /**
+   * Inicializa el componente ejecutando por defecto la carga de todas las películas.
    */
   ngOnInit(): void {
-    this.loadMovies();
+    this.loadAllMovies();
   }
 
   /**
-   * Carga el listado de películas usando el caso de uso
-   * {@link GetAllMoviesUseCase}.
+   * Ejecuta el caso de uso 1: Carga todas las películas del catálogo.
    */
-  loadMovies(): void {
+  loadAllMovies(): void {
     this.state = 'loading';
+    this.errorMessage = '';
+    this.activeFilterTitle = 'Catálogo Completo';
+
     this.getAllMoviesUseCase.execute().subscribe({
-      next: (movies) => {
+      next: (movies: MovieModel[]) => {
         this.movies = movies;
         this.state = 'success';
       },
-      error: () => {
+      error: (error: unknown) => {
         this.state = 'error';
+        this.errorMessage = 'Ocurrió un error al cargar todas las películas.';
+        console.error('Error cargando películas:', error);
       },
     });
   }
 
   /**
-   * Busca una película por id usando el caso de uso
-   * {@link GetMovieByIdUseCase}.
+   * Ejecuta el caso de uso 2: Carga únicamente las películas recientes (año >= 2020).
    */
-  searchById(): void {
-    if (this.searchId === null) {
-      this.searchError = 'Ingrese un id válido';
-      return;
-    }
+  loadRecentMovies(): void {
+    this.state = 'loading';
+    this.errorMessage = '';
+    this.activeFilterTitle = 'Películas Recientes (2020 - Actualidad)';
 
-    this.searchError = '';
-    this.getMovieByIdUseCase.execute(this.searchId).subscribe({
-      next: (movie) => {
-        this.searchedMovie = movie;
+    this.getRecentMoviesUseCase.execute().subscribe({
+      next: (movies: MovieModel[]) => {
+        this.movies = movies;
+        this.state = 'success';
       },
-      error: () => {
-        this.searchedMovie = null;
-        this.searchError = 'Película no encontrada';
+      error: (error: unknown) => {
+        this.state = 'error';
+        this.errorMessage = 'Ocurrió un error al cargar las películas recientes.';
+        console.error('Error cargando películas recientes:', error);
       },
     });
   }
 
   /**
-   * Crea una película usando el caso de uso {@link CreateMovieUseCase}.
-   *
-   * @remarks
-   * Al finalizar correctamente, reinicia el formulario y recarga el
-   * listado.
+   * Ejecuta el caso de uso 3: Carga únicamente las películas clásicas (año < 2000).
    */
-  createMovie(): void {
-    this.createState = 'loading';
-    this.createMovieUseCase.execute({ ...this.form }).subscribe({
-      next: () => {
-        this.createState = 'success';
-        this.form = this.createEmptyForm();
-        this.loadMovies();
+  loadClassicMovies(): void {
+    this.state = 'loading';
+    this.errorMessage = '';
+    this.activeFilterTitle = 'Películas Clásicas (Antes del 2000)';
+
+    this.getClassicMoviesUseCase.execute().subscribe({
+      next: (movies: MovieModel[]) => {
+        this.movies = movies;
+        this.state = 'success';
       },
-      error: () => {
-        this.createState = 'error';
+      error: (error: unknown) => {
+        this.state = 'error';
+        this.errorMessage = 'Ocurrió un error al cargar las películas clásicas.';
+        console.error('Error cargando películas clásicas:', error);
       },
     });
-  }
-
-  /**
-   * Construye un modelo de formulario vacío.
-   *
-   * @returns Datos iniciales de una película
-   */
-  private createEmptyForm(): CreateMovieDto {
-    return {
-      title: '',
-      director: '',
-      year: new Date().getFullYear(),
-      genre: 'Action',
-    };
   }
 }

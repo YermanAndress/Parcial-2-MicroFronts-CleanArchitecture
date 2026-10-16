@@ -6,39 +6,43 @@ import { GetAllMoviesUseCase } from './get-all-movies.usecase';
 
 describe('GetAllMoviesUseCase', () => {
   let useCase: GetAllMoviesUseCase;
-
-  const movieRepositoryMock: jest.Mocked<MovieRepository> = {
+  const movieRepositoryMock = {
     getAll: jest.fn(),
-    getById: jest.fn(),
-    create: jest.fn(),
-  } as unknown as jest.Mocked<MovieRepository>;
+    getRecent: jest.fn(),
+    getClassics: jest.fn(),
+  };
 
   beforeEach(() => {
+    jest.clearAllMocks();
     TestBed.configureTestingModule({
       providers: [
         GetAllMoviesUseCase,
         { provide: MovieRepository, useValue: movieRepositoryMock },
       ],
-    }).compileComponents();
+    });
     useCase = TestBed.inject(GetAllMoviesUseCase);
   });
 
-  it('debería ser inyectable y crearse correctamente', () => {
+  it('debería instanciarse e inyectarse correctamente', () => {
+    expect(useCase).toBeTruthy();
     expect(useCase).toBeInstanceOf(GetAllMoviesUseCase);
   });
 
-  it('debería delegar la llamada del repository', async () => {
+  it('debería delegar la llamada a getAll del MovieRepository y retornar películas', async () => {
     movieRepositoryMock.getAll.mockReturnValue(of(MOVIES_MOCK));
     const result = await firstValueFrom(useCase.execute());
+
     expect(movieRepositoryMock.getAll).toHaveBeenCalledTimes(1);
     expect(result).toEqual(MOVIES_MOCK);
   });
 
-  it('debería propagar un error cuando el repositorio emita un error', async () => {
-    const errorMessage = 'Fallo la búsqueda de películas';
-    movieRepositoryMock.getAll.mockReturnValue(
-      throwError(() => new Error(errorMessage)),
+  it('debería propagar el error cuando MovieRepository.getAll falla', async () => {
+    const errorExpected = new Error('Error al consultar todas las películas');
+    movieRepositoryMock.getAll.mockReturnValue(throwError(() => errorExpected));
+
+    await expect(firstValueFrom(useCase.execute())).rejects.toThrow(
+      'Error al consultar todas las películas'
     );
-    await expect(firstValueFrom(useCase.execute())).rejects.toThrow(errorMessage);
+    expect(movieRepositoryMock.getAll).toHaveBeenCalledTimes(1);
   });
 });

@@ -5,23 +5,21 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { MovieRepository } from './core/domain/repositories/movie.repository';
-import { MovieRepositoryImpl } from './core/infrastructure/repositories/movie.repository.impl';
 import { routes } from './app.routes';
+import { MovieRepository } from './core/domain/repositories/movie.repository';
+import { MovieNodeRepositoryImpl } from './core/infrastructure/repositories/node-implementation/movie-node.repository.impl';
 
 /**
- * Configuración principal de la aplicación Angular.
+ * Configuración global de la aplicación Angular para el microfrontend de películas.
  *
  * @remarks
- * Define los *providers* globales utilizados en el arranque de la
- * aplicación. Incluye el enrutamiento, el cliente HTTP y el registro del
- * contrato {@link MovieRepository} con su implementación de
- * infraestructura.
+ * Registra los proveedores de servicios del contenedor de Inyección de Dependencias.
+ * Asocia el contrato abstracto {@link MovieRepository} con la implementación {@link MovieNodeRepositoryImpl}.
  */
 export const appConfig: ApplicationConfig = {
   providers: [
-    // Clean Architecture: el dominio define el contrato, infraestructura lo implementa.
-    { provide: MovieRepository, useClass: MovieRepositoryImpl },
+    // Conmutabilidad de repositorios bajo Clean Architecture
+    { provide: MovieRepository, useClass: MovieNodeRepositoryImpl },
 
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),

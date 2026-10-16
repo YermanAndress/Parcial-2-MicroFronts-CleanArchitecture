@@ -1,24 +1,36 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { CREATE_MOVIE_MOCK, MOVIES_MOCK } from '../../../mocks/movies.mocks';
-import { CreateMovieUseCase } from '../../../core/application/use-cases/create-movie.usecase';
-import { GetAllMoviesUseCase } from '../../../core/application/use-cases/get-all-movies.usecase';
-import { GetMovieByIdUseCase } from '../../../core/application/use-cases/get-movie-by-id.usecase';
-import { MovieRepository } from '../../../core/domain/repositories/movie.repository';
+import { GetAllMoviesUseCase } from '../../../core/application/usecases/get-all-movies.usecase';
+import { GetClassicMoviesUseCase } from '../../../core/application/usecases/get-classic-movies.usecase';
+import { GetRecentMoviesUseCase } from '../../../core/application/usecases/get-recent-movies.usecase';
+import { MOVIES_MOCK } from '../../../mocks/movies.mocks';
 import { MoviesPage } from './movies.page';
 
 describe('MoviesPage', () => {
   let component: MoviesPage;
   let fixture: ComponentFixture<MoviesPage>;
 
-  const movieRepositoryMock: jest.Mocked<MovieRepository> = {
-    getAll: jest.fn(),
-    getById: jest.fn(),
-    create: jest.fn(),
-  } as unknown as jest.Mocked<MovieRepository>;
+  const getAllMoviesUseCaseMock = {
+    execute: jest.fn(),
+  };
+
+  const getRecentMoviesUseCaseMock = {
+    execute: jest.fn(),
+  };
+
+  const getClassicMoviesUseCaseMock = {
+    execute: jest.fn(),
+  };
 
   beforeEach(async () => {
-    movieRepositoryMock.getAll.mockReturnValue(of(MOVIES_MOCK));
+    jest.clearAllMocks();
+    getAllMoviesUseCaseMock.execute.mockReturnValue(of(MOVIES_MOCK));
+    getRecentMoviesUseCaseMock.execute.mockReturnValue(
+      of(MOVIES_MOCK.filter((m) => m.year >= 2020))
+    );
+    getClassicMoviesUseCaseMock.execute.mockReturnValue(
+      of(MOVIES_MOCK.filter((m) => m.year < 2000))
+    );
 
     await TestBed.configureTestingModule({
       imports: [MoviesPage],
@@ -26,10 +38,9 @@ describe('MoviesPage', () => {
       .overrideComponent(MoviesPage, {
         set: {
           providers: [
-            GetAllMoviesUseCase,
-            GetMovieByIdUseCase,
-            CreateMovieUseCase,
-            { provide: MovieRepository, useValue: movieRepositoryMock },
+            { provide: GetAllMoviesUseCase, useValue: getAllMoviesUseCaseMock },
+            { provide: GetRecentMoviesUseCase, useValue: getRecentMoviesUseCaseMock },
+            { provide: GetClassicMoviesUseCase, useValue: getClassicMoviesUseCaseMock },
           ],
         },
       })
@@ -37,76 +48,132 @@ describe('MoviesPage', () => {
 
     fixture = TestBed.createComponent(MoviesPage);
     component = fixture.componentInstance;
+    fixture.detectChanges(); // Ejecuta ngOnInit y deja el componente en estado inicial
   });
 
-  it('debería crear el componente', () => {
-    fixture.detectChanges();
+  it('debería crearse correctamente el componente', () => {
     expect(component).toBeTruthy();
   });
 
-  it('debería cargar las películas en ngOnInit (success)', () => {
-    fixture.detectChanges();
-    expect(movieRepositoryMock.getAll).toHaveBeenCalledTimes(1);
-    expect(component.movies).toEqual(MOVIES_MOCK);
+  it('debería invocar loadAllMovies en ngOnInit y actualizar estado a success', () => {
+    expect(getAllMoviesUseCaseMock.execute).toHaveBeenCalledTimes(1);
     expect(component.state).toBe('success');
+    expect(component.movies).toEqual(MOVIES_MOCK);
+    expect(component.activeFilterTitle).toBe('Catálogo Completo');
   });
 
-  it('debería establecer el estado error si falla la carga', () => {
-    movieRepositoryMock.getAll.mockReturnValue(
-      throwError(() => new Error('error')),
-    );
-    fixture.detectChanges();
-    expect(component.state).toBe('error');
+  describe('loadAllMovies', () => {
+    it('debería actualizar state a success y cargar las películas', () => {
+      component.loadAllMovies();
+
+      expect(getAllMoviesUseCaseMock.execute).toHaveBeenCalled();
+      expect(component.state).toBe('success');
+      expect(component.movies).toEqual(MOVIES_MOCK);
+      expect(component.errorMessage).toBe('');
+    });
+
+    it('debería actualizar state a error cuando el caso de uso falla', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      getAllMoviesUseCaseMock.execute.mockReturnValue(
+        throwError(() => new Error('Error al listar películas'))
+      );
+
+      component.loadAllMovies();
+
+      expect(component.state).toBe('error');
+      expect(component.errorMessage).toContain('Ocurrió un error al cargar todas las películas');
+      consoleSpy.mockRestore();
+    });
   });
 
-  it('searchById debería mostrar un error si no hay id', () => {
-    fixture.detectChanges();
-    component.searchId = null;
-    component.searchById();
-    expect(component.searchError).toContain('id');
+  describe('loadRecentMovies', () => {
+    it('debería actualizar state a success y cargar películas con year >= 2020', () => {
+      const recent = MOVIES_MOCK.filter((m) => m.year >= 2020);
+      getRecentMoviesUseCaseMock.execute.mockReturnValue(of(recent));
+
+      component.loadRecentMovies();
+
+      expect(getRecentMoviesUseCaseMock.execute).toHaveBeenCalled();
+      expect(component.state).toBe('success');
+      expect(component.movies).toEqual(recent);
+      expect(component.activeFilterTitle).toContain('Películas Recientes');
+    });
+
+    it('debería actualizar state a error cuando el caso de uso falla', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      getRecentMoviesUseCaseMock.execute.mockReturnValue(
+        throwError(() => new Error('Error al listar películas recientes'))
+      );
+
+      component.loadRecentMovies();
+
+      expect(component.state).toBe('error');
+      expect(component.errorMessage).toContain('Ocurrió un error al cargar las películas recientes');
+      consoleSpy.mockRestore();
+    });
   });
 
-  it('searchById debería encontrar la película', () => {
-    fixture.detectChanges();
-    movieRepositoryMock.getById.mockReturnValue(of(MOVIES_MOCK[0]));
-    component.searchId = 1;
-    component.searchById();
-    expect(movieRepositoryMock.getById).toHaveBeenCalledWith(1);
-    expect(component.searchedMovie).toEqual(MOVIES_MOCK[0]);
-    expect(component.searchError).toBe('');
+  describe('loadClassicMovies', () => {
+    it('debería actualizar state a success y cargar películas con year < 2000', () => {
+      const classics = MOVIES_MOCK.filter((m) => m.year < 2000);
+      getClassicMoviesUseCaseMock.execute.mockReturnValue(of(classics));
+
+      component.loadClassicMovies();
+
+      expect(getClassicMoviesUseCaseMock.execute).toHaveBeenCalled();
+      expect(component.state).toBe('success');
+      expect(component.movies).toEqual(classics);
+      expect(component.activeFilterTitle).toContain('Películas Clásicas');
+    });
+
+    it('debería actualizar state a error cuando el caso de uso falla', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      getClassicMoviesUseCaseMock.execute.mockReturnValue(
+        throwError(() => new Error('Error al listar películas clásicas'))
+      );
+
+      component.loadClassicMovies();
+
+      expect(component.state).toBe('error');
+      expect(component.errorMessage).toContain('Ocurrió un error al cargar las películas clásicas');
+      consoleSpy.mockRestore();
+    });
   });
 
-  it('searchById debería manejar el error de no encontrada', () => {
-    fixture.detectChanges();
-    movieRepositoryMock.getById.mockReturnValue(
-      throwError(() => new Error('404')),
-    );
-    component.searchId = 99;
-    component.searchById();
-    expect(component.searchedMovie).toBeNull();
-    expect(component.searchError).toContain('no encontrada');
-  });
+  describe('Interacción en Plantilla (DOM)', () => {
+    it('debería invocar los métodos al hacer clic en los botones de filtrado', () => {
+      const buttons = fixture.nativeElement.querySelectorAll('button');
 
-  it('createMovie debería crear y recargar el listado', () => {
-    fixture.detectChanges();
-    const created = { id: 3, ...CREATE_MOVIE_MOCK };
-    movieRepositoryMock.create.mockReturnValue(of(created));
-    component.form = { ...CREATE_MOVIE_MOCK };
+      const spyAll = jest.spyOn(component, 'loadAllMovies');
+      const spyRecent = jest.spyOn(component, 'loadRecentMovies');
+      const spyClassics = jest.spyOn(component, 'loadClassicMovies');
 
-    component.createMovie();
+      buttons[0]?.click();
+      expect(spyAll).toHaveBeenCalled();
 
-    expect(movieRepositoryMock.create).toHaveBeenCalledWith(CREATE_MOVIE_MOCK);
-    expect(component.createState).toBe('success');
-    expect(component.form.title).toBe('');
-    expect(movieRepositoryMock.getAll).toHaveBeenCalledTimes(2);
-  });
+      buttons[1]?.click();
+      expect(spyRecent).toHaveBeenCalled();
 
-  it('createMovie debería manejar el error de creación', () => {
-    fixture.detectChanges();
-    movieRepositoryMock.create.mockReturnValue(
-      throwError(() => new Error('error')),
-    );
-    component.createMovie();
-    expect(component.createState).toBe('error');
+      buttons[2]?.click();
+      expect(spyClassics).toHaveBeenCalled();
+    });
+
+    it('debería renderizar la alerta de error cuando state sea error', () => {
+      component.state = 'error';
+      component.errorMessage = 'Mensaje de prueba';
+      fixture.detectChanges();
+
+      const alert = fixture.nativeElement.querySelector('.alert-danger');
+      expect(alert).toBeTruthy();
+      expect(alert.textContent).toContain('Mensaje de prueba');
+    });
+
+    it('debería renderizar el spinner cuando state sea loading', () => {
+      component.state = 'loading';
+      fixture.detectChanges();
+
+      const spinner = fixture.nativeElement.querySelector('.spinner-border');
+      expect(spinner).toBeTruthy();
+    });
   });
 });
