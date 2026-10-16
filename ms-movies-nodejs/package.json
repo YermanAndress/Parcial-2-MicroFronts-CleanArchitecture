@@ -1,12 +1,19 @@
 {
   "name": "ms-movies-nodejs",
   "version": "1.0.0",
-  "description": "",
+  "description": "Microservicio de Películas con Node.js, Express y Clean Architecture",
   "main": "index.js",
   "scripts": {
-    "start": "tsnd --respawn --clear src/app.ts"
+    "start": "tsnd --respawn --clear src/app.ts",
+    "build": "tsc"
   },
-  "keywords": [],
+  "keywords": [
+    "clean-architecture",
+    "microservices",
+    "movies",
+    "express",
+    "typescript"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",

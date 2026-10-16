@@ -1,0 +1,78 @@
+<div class="container py-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white py-3">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h2 class="h4 mb-0">
+            <i class="bi bi-film me-2"></i>Módulo de Películas (Microfrontend)
+          </h2>
+          <small class="text-white-50">Clean Architecture - Puerto 4202</small>
+        </div>
+        <span class="badge bg-light text-primary fs-6 px-3 py-2">
+          {{ activeFilterTitle }} ({{ movies.length }})
+        </span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Botones de Acción para los 3 Casos de Uso -->
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        <button
+          type="button"
+          class="btn btn-outline-primary d-flex align-items-center gap-2"
+          [disabled]="state === 'loading'"
+          (click)="loadAllMovies()"
+        >
+          <i class="bi bi-collection-play"></i>
+          <span>Todas las Películas (getAll)</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-success d-flex align-items-center gap-2"
+          [disabled]="state === 'loading'"
+          (click)="loadRecentMovies()"
+        >
+          <i class="bi bi-calendar-check"></i>
+          <span>Estrenos Recientes (>= 2020)</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-warning d-flex align-items-center gap-2 text-dark"
+          [disabled]="state === 'loading'"
+          (click)="loadClassicMovies()"
+        >
+          <i class="bi bi-star"></i>
+          <span>Películas Clásicas (< 2000)</span>
+        </button>
+      </div>
+
+      <!-- Estado: Cargando -->
+      @if (state === 'loading') {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Cargando películas...</span>
+          </div>
+          <p class="mt-3 text-muted">Consultando el catálogo mediante el caso de uso seleccionado...</p>
+        </div>
+      }
+
+      <!-- Estado: Error -->
+      @if (state === 'error') {
+        <div class="alert alert-danger d-flex align-items-center shadow-sm" role="alert">
+          <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
+          <div>
+            <h5 class="alert-heading mb-1">Error al obtener las películas</h5>
+            <p class="mb-0">{{ errorMessage }}</p>
+          </div>
+        </div>
+      }
+
+      <!-- Estado: Éxito (renderiza Dumb Component MoviesTableComponent) -->
+      @if (state === 'success') {
+        <app-movies-table [movies]="movies"></app-movies-table>
+      }
+    </div>
+  </div>
+</div>

@@ -1,8 +1,8 @@
-# Parcial 2 - Microfrontends & Clean Architecture (BASE)
+# Parcial 2 - Microfrontends & Clean Architecture
 
-Base vacía: solo estructura de carpetas + archivos principales + `package` con dependencias. Sin implementación de dominio (la hace el grupo hoy).
+Monorepo con host + 3 microfrontends (Angular + Module Federation) + 3 microservicios (2 Node.js + 1 Spring Boot), cada vertical con Clean Architecture y 3 casos de uso.
 
-## Proyectos a desarrollar (7, vacíos)
+## Proyectos (7)
 
 ```
 host-shell-angular/      # 4200 - principal: src/app/app.* + navbar + routes a 4201/4202/4203
@@ -14,12 +14,13 @@ ms-movies-nodejs/        # 3003 - principal: src/app.ts
 ms-reviews-springboot/   # 8081 - principal: .../UcevaSpringBootTallerCleanArchitectureApplication.java
 ```
 
-Qué queda en cada uno:
-- Angular (host + 3 MF): carpetas Clean vacías (`core/domain/models|repositories`, `core/application/use-cases`, `core/infrastructure/services|repositories`, `presentation/pages|components`, `mocks`, `environments` con `.gitkeep`) + principales fuera de `/app` (`bootstrap.ts`, `index.html`, `main.ts`, `styles.scss`) + dentro de `/app` (`app.config.ts`, `app.routes.ts`, `app.scss`, `app.ts`) + obligatorios (`package.json`, `angular.json` con puerto, `webpack.config.js` con `remoteEntry.js`, `tsconfig*.json`, `jest.config.js`, `setup-jest.ts`).
-- Node (x2): carpetas vacías (`domain/models|repositories`, `application/usecases`, `infrastructure/datasources|repositories|web/controllers`) + principales (`src/app.ts`, `web/server.ts`, `web/routes/routes.ts` placeholder, `web/config|erros|interfaces`) + obligatorios (`package.json`, `tsconfig.json`, `.env` con `PORT`).
-- Spring (x1): carpetas vacías (`domain/entity|repository`, `application/usecase`, `infrastructure/controller|datasource|repository` con `.gitkeep`) + principales (`UcevaSpringBootTallerCleanArchitectureApplication.java`, `config/AppConfig.java` placeholder, `config/CorsConfig.java`, `application.properties` con `server.port=8081`) + obligatorios (`build.gradle`, `settings.gradle`).
+Qué contiene cada uno:
 
-## Referencia de talleres (copias intactas, no tocar)
+- Angular (host + 3 MF): Clean Architecture en `src/app` (`core/domain/models|repositories`, `core/application/use-cases`, `core/infrastructure/services|repositories`, `presentation/pages|components`, `mocks`, `environments`) + `package.json`, `angular.json` con puerto, `webpack.config.js` con `remoteEntry.js`, `tsconfig*.json`, `jest.config.js`, `setup-jest.ts`. Pruebas Jest con cobertura 100% en los 3 MF (exige >90%).
+- Node (x2): Clean Architecture en `src` (`domain/models|repositories`, `application/usecases`, `infrastructure/repositories|web/controllers|routes`) + `src/app.ts`, `web/server.ts`, `web/routes/routes.ts`, `web/config|erros|interfaces` + `package.json`, `tsconfig.json`, `.env` con `PORT`. Swagger UI en `/api/docs`.
+- Spring (x1): Clean Architecture en `src/main/java/...` (`domain/entity|repository`, `application/usecase`, `infrastructure/controller|datasource|repository` + `config/AppConfig.java` con beans, `config/CorsConfig.java`) + `application.properties` con `server.port=8081`. Swagger UI en `/api/swagger-ui/index.html`.
+
+## Referencia de talleres
 
 ```
 referencia-talleres/
@@ -33,13 +34,31 @@ referencia-talleres/
 
 ## Puertos y mapeo
 
-| MF | MS | Swagger |
-|---|---|---|
-| mf-authors `4201` | ms-authors `3001` | `:3001/api/docs` |
-| mf-movies `4202` | ms-movies `3003` | `:3003/api/docs` |
+| MF                | MS                | Swagger                           |
+| ----------------- | ----------------- | --------------------------------- |
+| mf-authors `4201` | ms-authors `3001` | `:3001/api/docs`                  |
+| mf-movies `4202`  | ms-movies `3003`  | `:3003/api/docs`                  |
 | mf-reviews `4203` | ms-reviews `8081` | `:8081/api/swagger-ui/index.html` |
-| host `4200` | - | - |
+| host `4200`       | -                 | -                                 |
 
 ## Arranque (tras `npm i` / `./gradlew`)
 
 Backends `3001, 3003, 8081` primero; luego `4201, 4202, 4203`; al final `4200`.
+
+```bash
+# Backends
+cd ms-authors-nodejs && npm start          # :3001 (ts-node-dev)
+cd ms-movies-nodejs && npm start            # :3003 (ts-node-dev)
+cd ms-reviews-springboot && sh gradlew bootRun  # :8081 (requiere JDK 21, ver su README)
+
+# Microfrontends (uno por terminal, exponen remoteEntry.js)
+cd mf-authors-angular && npx ng serve       # :4201 (./AuthorsPage)
+cd mf-movies-angular && npx ng serve        # :4202 (./routes)
+cd mf-reviews-angular && npx ng serve       # :4203 (./ReviewsPage)
+
+# Host (verificar en navegador las 3 rutas)
+cd host-shell-angular && npx ng serve       # :4200 (/authors, /movies, /reviews)
+```
+
+Cobertura Jest (exige >90%): `npx jest --coverage` en cada MF → 100% en los tres.
+APIs: `:3001/api/docs`, `:3003/api/docs`, `:8081/api/swagger-ui/index.html`.

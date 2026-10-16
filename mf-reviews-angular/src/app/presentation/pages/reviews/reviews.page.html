@@ -1,0 +1,11 @@
+@switch (state) {
+  @case ('loading') {
+    <app-reviews-alert alertState="loading" text="Cargando Reviews..."></app-reviews-alert>
+  }
+  @case ('error') {
+    <app-reviews-alert alertState="error" text="Error al Cargar los Reviews"></app-reviews-alert>
+  }
+  @case ('success') {
+    <app-reviews-table [reviews]="reviews"></app-reviews-table>
+  }
+}

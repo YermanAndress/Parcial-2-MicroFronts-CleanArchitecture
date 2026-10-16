@@ -1,6 +1,15 @@
 import { Routes } from '@angular/router';
 import { loadRemoteModule } from '@angular-architects/module-federation';
 
+/**
+ * Rutas principales de la aplicación Host Shell (Client-Host-Angular, puerto 4200).
+ *
+ * @remarks
+ * Integra los tres microfrontends remotos a través de Webpack Module Federation:
+ * - Authors MFE en http://localhost:4201
+ * - Movies MFE (moviesMfe) en http://localhost:4202 (consumiendo ms-movies-nodejs en el puerto 3003)
+ * - Reviews MFE en http://localhost:4203
+ */
 export const routes: Routes = [
   {
     path: 'authors',
@@ -13,12 +22,12 @@ export const routes: Routes = [
   },
   {
     path: 'movies',
-    loadComponent: () =>
+    loadChildren: () =>
       loadRemoteModule({
         type: 'module',
         remoteEntry: 'http://localhost:4202/remoteEntry.js',
-        exposedModule: './MoviesPage',
-      }).then((m) => m.MoviesPage),
+        exposedModule: './routes',
+      }).then((m) => m.routes),
   },
   {
     path: 'reviews',
