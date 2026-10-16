@@ -1,18 +1,25 @@
 import { Routes } from '@angular/router';
+import { MoviesPage } from './presentation/pages/movies/movies.page';
 
 /**
- * Definición de las rutas del microfrontend de películas.
+ * Rutas de navegación principales de la aplicación autónoma de películas.
  *
  * @remarks
- * La ruta raíz carga de forma perezosa `MoviesPage`, que es el
- * componente expuesto a través de Module Federation.
- *
- * @see {@link MoviesPage}
+ * Define el enrutamiento base para cuando el microfrontend se ejecuta de forma
+ * independiente en el puerto 4202.
  */
 export const routes: Routes = [
   {
+    path: 'movies',
+    component: MoviesPage,
+  },
+  {
     path: '',
-    loadComponent: () =>
-      import('./presentation/pages/movies/movies.page').then((m) => m.MoviesPage),
+    redirectTo: 'movies',
+    pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'movies',
   },
 ];
