@@ -1,6 +1,6 @@
 import { appConfig } from './app.config';
 import { MovieRepository } from './core/domain/repositories/movie.repository';
-import { MovieRepositoryImpl } from './core/infrastructure/repositories/movie.repository.impl';
+import { MovieNodeRepositoryImpl } from './core/infrastructure/repositories/node-implementation/movie-node.repository.impl';
 
 describe('appConfig', () => {
   it('debería estar definido con providers', () => {
@@ -8,16 +8,16 @@ describe('appConfig', () => {
     expect(Array.isArray(appConfig.providers)).toBe(true);
   });
 
-  it('debería registrar MovieRepository con MovieRepositoryImpl', () => {
+  it('debería registrar MovieRepository con MovieNodeRepositoryImpl', () => {
     const provider = appConfig.providers.find(
       (p) =>
         typeof p === 'object' &&
         p !== null &&
         'provide' in p &&
-        (p as { provide: unknown }).provide === MovieRepository,
+        (p as { provide: unknown }).provide === MovieRepository
     ) as { provide: unknown; useClass: unknown } | undefined;
 
     expect(provider).toBeDefined();
-    expect(provider?.useClass).toBe(MovieRepositoryImpl);
+    expect(provider?.useClass).toBe(MovieNodeRepositoryImpl);
   });
 });
