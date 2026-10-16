@@ -1,0 +1,25 @@
+<table class="table table-striped border">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Título</th>
+      <th scope="col">Rating</th>
+      <th scope="col">Comentario</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (review of reviews; track review) {
+      <tr>
+        <th scope="row">{{ review.id }}</th>
+        <td>{{ review.title }}</td>
+        <td>
+          <dsb-badge-atom
+            [text]="review.rating.toString()"
+            [type]="ratingMap[review.rating]">
+          </dsb-badge-atom>
+        </td>
+        <td>{{ review.comment }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
