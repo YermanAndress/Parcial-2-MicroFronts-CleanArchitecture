@@ -1,10 +1,15 @@
 /**
+ * Definición de esquemas OpenAPI para Swagger.
+ *
+ * @remarks
+ * Registra el esquema `Movie` con los tipos estrictos:
+ * id: string, title: string, director: string, year: number, genre: string.
+ *
  * @openapi
  * components:
  *   schemas:
  *     Movie:
  *       type: object
- *       description: Representa una película del sistema
  *       required:
  *         - id
  *         - title
@@ -13,56 +18,24 @@
  *         - genre
  *       properties:
  *         id:
- *           type: number
- *           example: 1
+ *           type: string
+ *           description: Identificador único de la película
+ *           example: "1"
  *         title:
  *           type: string
- *           example: Inception
+ *           description: Título de la película
+ *           example: "Inception"
  *         director:
  *           type: string
- *           example: Christopher Nolan
+ *           description: Director cinematográfico
+ *           example: "Christopher Nolan"
  *         year:
- *           type: number
+ *           type: integer
+ *           description: Año de estreno de la película
  *           example: 2010
  *         genre:
  *           type: string
- *           enum:
- *             - Action
- *             - Comedy
- *             - Drama
- *             - Sci-Fi
- *             - Animation
- *             - Thriller
- *             - Horror
- *           example: Sci-Fi
- *     CreateMovie:
- *       type: object
- *       description: Datos necesarios para crear una película
- *       required:
- *         - title
- *         - director
- *         - year
- *         - genre
- *       properties:
- *         title:
- *           type: string
- *           example: Inception
- *         director:
- *           type: string
- *           example: Christopher Nolan
- *         year:
- *           type: number
- *           example: 2010
- *         genre:
- *           type: string
- *           enum:
- *             - Action
- *             - Comedy
- *             - Drama
- *             - Sci-Fi
- *             - Animation
- *             - Thriller
- *             - Horror
- *           example: Sci-Fi
+ *           description: Género cinematográfico
+ *           example: "Sci-Fi"
  */
-export {};
+export const swaggerSchemas = {};

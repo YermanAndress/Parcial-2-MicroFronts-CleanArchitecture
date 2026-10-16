@@ -1,44 +1,31 @@
-import { CreateMovieDto, Movie } from '../models/movie.model';
+import { Movie } from "../models/movie.model";
 
 /**
- * Contrato del repositorio de películas.
+ * Contrato abstracto del repositorio de películas en la capa de Dominio.
  *
  * @remarks
- * Esta clase abstracta pertenece a la **capa de Domain**
- * y define el contrato que deben cumplir todas las
- * implementaciones de repositorios de películas.
- *
- * El dominio:
- * - NO conoce detalles de infraestructura
- * - NO sabe de bases de datos, APIs o frameworks
- *
- * Los casos de uso dependen de esta abstracción,
- * no de implementaciones concretas.
- *
- * @see {@link Movie}
+ * Define las operaciones que cualquier fuente de datos (en memoria con Faker,
+ * base de datos, o API externa) debe implementar para el catálogo de películas.
  */
 export abstract class MovieRepository {
   /**
-   * Obtiene el listado completo de películas.
+   * Obtiene todas las películas del catálogo.
    *
-   * @returns Promesa que resuelve un arreglo de {@link Movie}
+   * @returns Promesa con la colección completa de películas
    */
   abstract getAll(): Promise<Movie[]>;
 
   /**
-   * Obtiene una película por su identificador.
+   * Obtiene las películas con estreno reciente (año >= 2020).
    *
-   * @param id - Identificador único de la película
-   * @returns Promesa que resuelve la {@link Movie} o `undefined`
-   * si no existe
+   * @returns Promesa con la lista de películas recientes
    */
-  abstract getById(id: number): Promise<Movie | undefined>;
+  abstract getRecent(): Promise<Movie[]>;
 
   /**
-   * Crea una nueva película.
+   * Obtiene las películas consideradas clásicas (año < 2000).
    *
-   * @param movie - Datos de la película a crear (sin `id`)
-   * @returns Promesa que resuelve la {@link Movie} creada
+   * @returns Promesa con la lista de películas clásicas
    */
-  abstract create(movie: CreateMovieDto): Promise<Movie>;
+  abstract getClassics(): Promise<Movie[]>;
 }

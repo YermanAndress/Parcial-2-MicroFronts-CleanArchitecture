@@ -1,61 +1,107 @@
-import { CreateMovieDto, Movie } from '../../domain/models/movie.model';
-import { MovieRepository } from '../../domain/repositories/movie.repository';
-import { MovieDatasource } from '../datasources/movie.datasource';
+import { faker } from "@faker-js/faker";
+import { Movie } from "../../domain/models/movie.model";
+import { MovieRepository } from "../../domain/repositories/movie.repository";
 
 /**
- * Implementación concreta del repositorio de películas.
+ * Implementación del repositorio de películas utilizando datos dinámicos de Faker.js.
  *
  * @remarks
- * Esta clase pertenece a la **capa de Infrastructure** y actúa como
- * un **adaptador (Repository Implementation)** entre el contrato del
- * dominio {@link MovieRepository} y la fuente de datos
- * {@link MovieDatasource}.
- *
- * Su responsabilidad es cumplir el contrato definido por el dominio
- * delegando el acceso a datos al datasource.
- *
- * ❗ No contiene lógica de negocio.
- *
- * @see {@link MovieRepository}
- * @see {@link MovieDatasource}
+ * Pertenece a la capa de Infraestructura. Genera 15 películas dinámicas en memoria
+ * garantizando la existencia de películas clásicas (año < 2000) y recientes (año >= 2020),
+ * satisfaciendo los 3 casos de uso del dominio sin acoplar la lógica de negocio.
  */
-export class MovieRepositoryImpl extends MovieRepository {
+export class MovieRepositoryImpl implements MovieRepository {
   /**
-   * Crea una nueva instancia del repositorio de películas.
-   *
-   * @param datasource - Fuente de datos utilizada para obtener
-   * la información de películas
+   * Catálogo de películas almacenado en memoria.
    */
-  constructor(private readonly datasource: MovieDatasource) {
-    super();
+  private readonly movies: Movie[];
+
+  /**
+   * Inicializa el repositorio generando 15 películas dinámicas.
+   */
+  constructor() {
+    this.movies = this.seedMovies();
   }
 
   /**
-   * Obtiene el listado completo de películas.
+   * Genera 15 películas con Faker garantizando variedad cronológica.
    *
-   * @returns Promesa que resuelve un arreglo de {@link Movie}
+   * @returns Lista de 15 películas con contrato Movie estricto
    */
-  getAll(): Promise<Movie[]> {
-    return this.datasource.getAll();
+  private seedMovies(): Movie[] {
+    const genres = [
+      "Action",
+      "Comedy",
+      "Drama",
+      "Sci-Fi",
+      "Thriller",
+      "Horror",
+      "Animation",
+      "Adventure",
+    ];
+
+    const generated: Movie[] = [];
+
+    // 5 Películas clásicas (1975 - 1999) -> year < 2000
+    for (let i = 1; i <= 5; i++) {
+      generated.push({
+        id: String(i),
+        title: faker.book.title(),
+        director: faker.person.fullName(),
+        year: faker.number.int({ min: 1975, max: 1999 }),
+        genre: faker.helpers.arrayElement(genres),
+      });
+    }
+
+    // 5 Películas intermedias (2000 - 2019)
+    for (let i = 6; i <= 10; i++) {
+      generated.push({
+        id: String(i),
+        title: faker.book.title(),
+        director: faker.person.fullName(),
+        year: faker.number.int({ min: 2000, max: 2019 }),
+        genre: faker.helpers.arrayElement(genres),
+      });
+    }
+
+    // 5 Películas de estreno reciente (2020 - 2024) -> year >= 2020
+    for (let i = 11; i <= 15; i++) {
+      generated.push({
+        id: String(i),
+        title: faker.book.title(),
+        director: faker.person.fullName(),
+        year: faker.number.int({ min: 2020, max: 2024 }),
+        genre: faker.helpers.arrayElement(genres),
+      });
+    }
+
+    return generated;
   }
 
   /**
-   * Obtiene una película por su identificador.
+   * Obtiene todas las películas del catálogo.
    *
-   * @param id - Identificador único de la película
-   * @returns Promesa que resuelve la {@link Movie} o `undefined`
+   * @returns Promesa con las 15 películas
    */
-  getById(id: number): Promise<Movie | undefined> {
-    return this.datasource.getById(id);
+  async getAll(): Promise<Movie[]> {
+    return [...this.movies];
   }
 
   /**
-   * Crea una nueva película.
+   * Obtiene las películas con año de estreno reciente (año >= 2020).
    *
-   * @param movie - Datos de la película a crear (sin `id`)
-   * @returns Promesa que resuelve la {@link Movie} creada
+   * @returns Promesa con las películas con year >= 2020
    */
-  create(movie: CreateMovieDto): Promise<Movie> {
-    return this.datasource.create(movie);
+  async getRecent(): Promise<Movie[]> {
+    return this.movies.filter((movie) => movie.year >= 2020);
+  }
+
+  /**
+   * Obtiene las películas consideradas clásicas (año < 2000).
+   *
+   * @returns Promesa con las películas con year < 2000
+   */
+  async getClassics(): Promise<Movie[]> {
+    return this.movies.filter((movie) => movie.year < 2000);
   }
 }

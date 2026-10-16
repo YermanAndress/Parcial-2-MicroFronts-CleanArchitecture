@@ -1,67 +1,34 @@
 /**
- * Interfaz que representa una película.
+ * Interfaz que representa el modelo de dominio de una Película.
  *
  * @remarks
- * Contiene la información básica necesaria para mostrar una película
- * en un listado o en el detalle.
- *
- * Cada película debe tener un `id` único, un `title` descriptivo,
- * un `director`, un `year` de estreno y un `genre` válido.
+ * Cumple con el contrato estricto de 5 propiedades requeridas por la arquitectura:
+ * `id`, `title`, `director`, `year` y `genre`.
  *
  * @example
  * ```ts
  * const movie: Movie = {
- *   id: 1,
- *   title: 'Inception',
- *   director: 'Christopher Nolan',
+ *   id: "1",
+ *   title: "Inception",
+ *   director: "Christopher Nolan",
  *   year: 2010,
- *   genre: 'Sci-Fi'
+ *   genre: "Sci-Fi"
  * };
  * ```
  */
 export interface Movie {
   /** Identificador único de la película */
-  id: number;
+  id: string;
 
-  /** Título de la película */
+  /** Título oficial de la película */
   title: string;
 
-  /** Director de la película */
+  /** Director cinematográfico */
   director: string;
 
   /** Año de estreno de la película */
   year: number;
 
-  /** Género al que pertenece la película */
-  genre: MovieGenre;
+  /** Género cinematográfico de la película */
+  genre: string;
 }
-
-/**
- * Datos necesarios para crear una película.
- *
- * @remarks
- * Es el modelo {@link Movie} sin el `id`, ya que este es
- * generado por el sistema al momento de persistir la película.
- */
-export type CreateMovieDto = Omit<Movie, 'id'>;
-
-/**
- * Tipo de género de una película.
- *
- * @remarks
- * Restringe los géneros a un conjunto predefinido de valores,
- * evitando cadenas arbitrarias en el dominio.
- *
- * @example
- * ```ts
- * const genre: MovieGenre = 'Drama';
- * ```
- */
-export type MovieGenre =
-  | 'Action'
-  | 'Comedy'
-  | 'Drama'
-  | 'Sci-Fi'
-  | 'Animation'
-  | 'Thriller'
-  | 'Horror';
