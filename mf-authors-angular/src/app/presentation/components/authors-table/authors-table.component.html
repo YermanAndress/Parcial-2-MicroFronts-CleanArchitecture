@@ -1,0 +1,20 @@
+<table class="table table-striped border">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Nombre</th>
+      <th scope="col">País</th>
+      <th scope="col">Año de nacimiento</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (author of authors; track author) {
+      <tr>
+        <th scope="row">{{ author.id }}</th>
+        <td>{{ author.name }}</td>
+        <td>{{ author.country }}</td>
+        <td>{{ author.birthYear }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

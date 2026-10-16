@@ -6,10 +6,12 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
+import { AuthorRepository } from './core/domain/repositories/author.repository';
+import { AuthorRepositoryImpl } from './core/infrastructure/repositories/author.repository.impl';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // TODO: registrar <Entidad>Repository con su *.impl (Clean Architecture)
+    { provide: AuthorRepository, useClass: AuthorRepositoryImpl },
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),

@@ -1,9 +1,9 @@
 @switch (state) {
   @case ('loading') {
-    <app-alert alertState="loading" text="Cargando Reviews..."></app-alert>
+    <app-reviews-alert alertState="loading" text="Cargando Reviews..."></app-reviews-alert>
   }
   @case ('error') {
-    <app-alert alertState="error" text="Error al Cargar los Reviews"></app-alert>
+    <app-reviews-alert alertState="error" text="Error al Cargar los Reviews"></app-reviews-alert>
   }
   @case ('success') {
     <app-reviews-table [reviews]="reviews"></app-reviews-table>

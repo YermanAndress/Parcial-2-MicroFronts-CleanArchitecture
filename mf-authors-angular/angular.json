@@ -39,7 +39,7 @@
             ],
             "main": "src/main.ts",
             "outputPath": "dist/mf-authors-angular",
-            "index": "src\\index.html",
+            "index": "src/index.html",
             "extraWebpackConfig": "webpack.config.js",
             "commonChunk": false
           },
