@@ -15,11 +15,12 @@ ms-reviews-springboot/   # 8081 - principal: .../UcevaSpringBootTallerCleanArchi
 ```
 
 Qué queda en cada uno:
+
 - Angular (host + 3 MF): carpetas Clean vacías (`core/domain/models|repositories`, `core/application/use-cases`, `core/infrastructure/services|repositories`, `presentation/pages|components`, `mocks`, `environments` con `.gitkeep`) + principales fuera de `/app` (`bootstrap.ts`, `index.html`, `main.ts`, `styles.scss`) + dentro de `/app` (`app.config.ts`, `app.routes.ts`, `app.scss`, `app.ts`) + obligatorios (`package.json`, `angular.json` con puerto, `webpack.config.js` con `remoteEntry.js`, `tsconfig*.json`, `jest.config.js`, `setup-jest.ts`).
 - Node (x2): carpetas vacías (`domain/models|repositories`, `application/usecases`, `infrastructure/datasources|repositories|web/controllers`) + principales (`src/app.ts`, `web/server.ts`, `web/routes/routes.ts` placeholder, `web/config|erros|interfaces`) + obligatorios (`package.json`, `tsconfig.json`, `.env` con `PORT`).
 - Spring (x1): carpetas vacías (`domain/entity|repository`, `application/usecase`, `infrastructure/controller|datasource|repository` con `.gitkeep`) + principales (`UcevaSpringBootTallerCleanArchitectureApplication.java`, `config/AppConfig.java` placeholder, `config/CorsConfig.java`, `application.properties` con `server.port=8081`) + obligatorios (`build.gradle`, `settings.gradle`).
 
-## Referencia de talleres (copias intactas, no tocar)
+## Referencia de talleres
 
 ```
 referencia-talleres/
@@ -33,12 +34,12 @@ referencia-talleres/
 
 ## Puertos y mapeo
 
-| MF | MS | Swagger |
-|---|---|---|
-| mf-authors `4201` | ms-authors `3001` | `:3001/api/docs` |
-| mf-movies `4202` | ms-movies `3003` | `:3003/api/docs` |
+| MF                | MS                | Swagger                           |
+| ----------------- | ----------------- | --------------------------------- |
+| mf-authors `4201` | ms-authors `3001` | `:3001/api/docs`                  |
+| mf-movies `4202`  | ms-movies `3003`  | `:3003/api/docs`                  |
 | mf-reviews `4203` | ms-reviews `8081` | `:8081/api/swagger-ui/index.html` |
-| host `4200` | - | - |
+| host `4200`       | -                 | -                                 |
 
 ## Arranque (tras `npm i` / `./gradlew`)
 
