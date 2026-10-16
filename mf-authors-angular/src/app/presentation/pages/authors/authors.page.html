@@ -1,0 +1,11 @@
+@switch (state) {
+  @case ('loading') {
+    <app-authors-alert alertState="loading" text="Cargando Authors..."></app-authors-alert>
+  }
+  @case ('error') {
+    <app-authors-alert alertState="error" text="Error al Cargar los Authors"></app-authors-alert>
+  }
+  @case ('success') {
+    <app-authors-table [authors]="authors"></app-authors-table>
+  }
+}
