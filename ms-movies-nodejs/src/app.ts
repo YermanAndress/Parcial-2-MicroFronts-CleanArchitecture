@@ -1,9 +1,9 @@
-import { envs } from "./infrastructure/web/config/envs";
-import { AppRoutes } from "./infrastructure/web/routes/routes";
-import { Server } from "./infrastructure/web/server";
+import { envs } from "./config/envs";
+import { AppRoutes } from "./presentation/routes";
+import { Server } from "./presentation/server";
 
 /**
- * Función principal que instancia y arranca el servidor.
+ * Función principal que instancia y arranca el microservicio de películas.
  */
 function main(): void {
   const server = new Server({
