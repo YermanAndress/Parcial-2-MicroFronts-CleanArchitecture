@@ -1,47 +1,38 @@
 import { Observable } from 'rxjs';
-import { CreateMovieDto, Movie } from '../models/movie.model';
+import { MovieModel } from '../models/movie.model';
 
 /**
- * Contrato del repositorio de películas.
- *
- * @description
- * Define el contrato de acceso a datos para la entidad `Movie`
- * dentro de la **capa de dominio**, siguiendo los principios de
- * Clean Architecture.
- *
- * Permite desacoplar la lógica de negocio de los detalles de
- * implementación de la infraestructura.
+ * Contrato abstracto del repositorio de películas en la capa de Dominio.
  *
  * @remarks
- * Las implementaciones pueden variar (API REST, GraphQL,
- * almacenamiento local, mocks, etc.) sin afectar a los casos de uso.
+ * Esta clase abstracta sirve como Token de Inyección de Dependencias (DI)
+ * en tiempo de ejecución para Angular, permitiendo desacoplar la capa de
+ * aplicación de cualquier fuente de datos (Local, Node.js o Spring Boot).
  *
- * @architecture Clean Architecture
- * @layer Domain
+ * Los casos de uso dependen exclusivamente de este contrato y nunca de
+ * implementaciones concretas de infraestructura.
  *
- * @see {@link Movie}
+ * @see {@link MovieModel}
  */
 export abstract class MovieRepository {
   /**
-   * Obtiene el listado completo de películas.
+   * Obtiene la totalidad de películas disponibles en el catálogo.
    *
-   * @returns Observable que emite un arreglo de {@link Movie}
+   * @returns Un {@link Observable} que emite el arreglo completo de {@link MovieModel}.
    */
-  abstract getAll(): Observable<Movie[]>;
+  abstract getAll(): Observable<MovieModel[]>;
 
   /**
-   * Obtiene una película por su identificador.
+   * Obtiene las películas de estreno reciente con año mayor o igual a 2020.
    *
-   * @param id - Identificador único de la película
-   * @returns Observable que emite la {@link Movie}
+   * @returns Un {@link Observable} que emite el listado de películas recientes.
    */
-  abstract getById(id: number): Observable<Movie>;
+  abstract getRecent(): Observable<MovieModel[]>;
 
   /**
-   * Crea una nueva película.
+   * Obtiene las películas clásicas con año de estreno anterior al 2000.
    *
-   * @param movie - Datos de la película a crear (sin `id`)
-   * @returns Observable que emite la {@link Movie} creada
+   * @returns Un {@link Observable} que emite el listado de películas clásicas.
    */
-  abstract create(movie: CreateMovieDto): Observable<Movie>;
+  abstract getClassics(): Observable<MovieModel[]>;
 }

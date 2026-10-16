@@ -1,14 +1,15 @@
 /**
- * Interfaz que representa una película.
+ * Modelo de dominio que representa una Película dentro del microfrontend.
  *
  * @remarks
- * Contiene la información básica necesaria para mostrar una película
- * en un listado o en el detalle.
+ * Representa la entidad central del catálogo cinematográfico y define
+ * exactamente los 5 campos contractuales compartidos con el backend:
+ * identificador, título, director, año y género.
  *
  * @example
  * ```ts
- * const movie: Movie = {
- *   id: 1,
+ * const movie: MovieModel = {
+ *   id: '1',
  *   title: 'Inception',
  *   director: 'Christopher Nolan',
  *   year: 2010,
@@ -16,45 +17,29 @@
  * };
  * ```
  */
-export interface Movie {
-  /** Identificador único de la película */
-  id: number;
+export interface MovieModel {
+  /**
+   * Identificador único de la película.
+   */
+  id: string;
 
-  /** Título de la película */
+  /**
+   * Título oficial de la obra cinematográfica.
+   */
   title: string;
 
-  /** Director de la película */
+  /**
+   * Nombre del director o directora de la película.
+   */
   director: string;
 
-  /** Año de estreno de la película */
+  /**
+   * Año de estreno o lanzamiento oficial.
+   */
   year: number;
 
-  /** Género al que pertenece la película */
-  genre: MovieGenre;
+  /**
+   * Género cinematográfico principal de la película.
+   */
+  genre: string;
 }
-
-/**
- * Datos necesarios para crear una película.
- *
- * @remarks
- * Es el modelo {@link Movie} sin el `id`, ya que este es
- * generado por el sistema.
- */
-export type CreateMovieDto = Omit<Movie, 'id'>;
-
-/**
- * Tipo de género de una película.
- *
- * @example
- * ```ts
- * const genre: MovieGenre = 'Drama';
- * ```
- */
-export type MovieGenre =
-  | 'Action'
-  | 'Comedy'
-  | 'Drama'
-  | 'Sci-Fi'
-  | 'Animation'
-  | 'Thriller'
-  | 'Horror';
